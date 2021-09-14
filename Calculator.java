@@ -9,16 +9,8 @@ import java.awt.*;
  * @author JonathanGonzalezBotero
  * @version 1.0
  */
-public class Calculator extends JFrame implements ActionListener, KeyListener 
+public class Calculator extends JFrame
 {
-    JPanel redPanel;
-    JPanel greenPanel;
-    JPanel bluePanel;
-    //
-    JButton btnOne;
-    JButton btnTwo;
-    JButton btnThree;
-    //
     JTextField textField;
     //
     String expression = "";
@@ -29,64 +21,159 @@ public class Calculator extends JFrame implements ActionListener, KeyListener
     public Calculator()
     {
         super("My PROG5001 - Calculator (1.0) ");
-        setLayout(new GridLayout(5, 5));
-        //create panels
-        
-        textField = new JTextField();
-        textField.setEditable(false);
-        add(textField);
-        
-        add(new JButton("1"));add(new JButton("2"));add(new JButton("3"));
-        add(new JButton("+"));add(new JButton("<<"));
-        
-        add(new JButton("4"));add(new JButton("5"));add(new JButton("6"));
-        add(new JButton("-"));add(new JButton("C"));
-        
-        add(new JButton("7"));add(new JButton("8"));add(new JButton("9"));
-        add(new JButton("*"));add(new JButton("("));
-        
-        add(new JButton("+/-"));add(new JButton("0"));add(new JButton("."));
-        add(new JButton("/"));add(new JButton(")"));
-        
-        add(new JButton("="));
-        add(new JButton("/"));add(new JButton(")"));
-        
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setPreferredSize(new Dimension(400, 300));
-        pack();
+        setMinimumSize(new Dimension(400, 400));
+        setLocation(300, 300);
         
-        setFocusable(true);
-        addKeyListener(this);
+        BuildComponents();
+        
+        pack();
+        setVisible(true);
     }
     
-    public void actionPerformed(ActionEvent e) {
-        String cmd = e.getActionCommand();
-        if (cmd.equals("CMD_One")) {
-           expression = expression + "1";
-        } else
-        if (cmd.equals("CMD_Two")) {
-           expression = expression + "2";
-        } else
-        if (cmd.equals("CMD_Three")) {
-           expression = expression + "3";
+    private void BuildComponents(){
+        BorderLayout calculatorPanel = new BorderLayout();
+        JPanel displayPanel = new JPanel();
+        
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        
+        gbc.weighty = 0.1;
+        gbc1.weighty = 0.1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc1.fill = GridBagConstraints.BOTH;
+
+        textField = new JTextField("");
+        textField.setPreferredSize(new Dimension(380, 40));
+        textField.setHorizontalAlignment(JTextField.RIGHT);
+        textField.setEditable(false);
+        displayPanel.add(textField);
+
+        for(int i=0; i<3; i++){
+            for(int j=0; j<3; j++){
+                gbc.gridy = i;
+                gbc.gridx = j;
+                mainPanel.add(new ButtonCalculator(""+((i*3)+j+1)), gbc);
+            }
         }
-        textField.setText(expression);       
+        
+        gbc.gridy = 3;
+        gbc.gridx = 0;
+        mainPanel.add(new ButtonCalculator("+/-"), gbc);
+        gbc.gridy = 3;
+        gbc.gridx = 1;
+        mainPanel.add(new ButtonCalculator("0"), gbc);
+        gbc.gridy = 3;
+        gbc.gridx = 2;
+        mainPanel.add(new ButtonCalculator("."), gbc);
+        gbc.gridy = 4;
+        gbc.gridx = 0;
+        gbc.gridwidth = 3;
+        mainPanel.add(new ButtonCalculator("="), gbc);
+
+        gbc1.gridy = 0;
+        gbc1.gridx = 3;
+        mainPanel.add(new ButtonCalculator("+"), gbc1);
+        gbc1.gridy = 0;
+        gbc1.gridx = 4;
+        mainPanel.add(new ButtonCalculator("<<"), gbc1);
+        gbc1.gridy = 1;
+        gbc1.gridx = 3;
+        mainPanel.add(new ButtonCalculator("-"), gbc1);
+        gbc1.gridy = 1;
+        gbc1.gridx = 4;
+        mainPanel.add(new ButtonCalculator("C"), gbc1);
+        gbc1.gridy = 2;
+        gbc1.gridx = 3;
+        mainPanel.add(new ButtonCalculator("*"), gbc1);
+        gbc1.gridy = 2;
+        gbc1.gridx = 4;
+        mainPanel.add(new ButtonCalculator("("), gbc1);
+        gbc1.gridy = 3;
+        gbc1.gridx = 3;
+        mainPanel.add(new ButtonCalculator("/"), gbc1);
+        gbc1.gridy = 3;
+        gbc1.gridx = 4;
+        mainPanel.add(new ButtonCalculator(")"), gbc1);
+        gbc1.gridy = 4;
+        gbc1.gridx = 3;
+        mainPanel.add(new ButtonCalculator("!"), gbc1);
+        gbc1.gridy = 4;
+        gbc1.gridx = 4;
+        mainPanel.add(new ButtonCalculator("OFF"), gbc1);
+        
+        setLayout(calculatorPanel);
+        add(displayPanel, BorderLayout.NORTH);
+        add(mainPanel, BorderLayout.CENTER);
     }
     
-    public void keyPressed(KeyEvent e) {
-        int key = e.getKeyCode();
-        if (key == KeyEvent.VK_BACK_SPACE)
-            System.out.println("Backspace was pressed: " + e.getKeyCode());
+    public class ButtonCalculator extends JButton {
+      public ButtonCalculator(String actionCommand) {
+        super(actionCommand);
+        setActionCommand(actionCommand);
+        if(actionCommand.equals("OFF")){
+            this.setBackground(Color.ORANGE);
+            this.setOpaque(true);
+        }
+            
+        addActionListener(new ActionListener() {
+            @Override 
+            public void actionPerformed(ActionEvent ae) {
+                String displayText = textField.getText();
+                switch(ae.getActionCommand()){
+                    case("<<"):
+                        textField.setText(displayText.substring(0, textField.getText().length() -1));
+                        break;
+                    case("C"):
+                        textField.setText("");
+                        break;
+                    case("="):
+                        EvaluateExpressions();
+                        break;
+                    case("+/-"):
+                        ChangeSignOfNumber(displayText);
+                        break;
+                    case("OFF"):
+                        System.exit(0);
+                        break;
+                    default:
+                        textField.setText(displayText + " " + ae.getActionCommand());
+                        break;
+                }
+            }
+        });
+      }
     }
-
-    public void keyReleased(KeyEvent e) {
+    
+    private void EvaluateExpressions(){
+        System.out.println("hola");
     }
-
-    public void keyTyped(KeyEvent e) {
+    
+    private void ChangeSignOfNumber(String displayText){
+        Integer length1 = displayText.length() - 1;
+        Integer length2 = displayText.length() - 2;
+        Integer lastExp = EvaluateNumber(displayText.substring(length1));
+        if(lastExp > 0){
+            String signExp = displayText.substring(length2, length1);
+            if(signExp.equals("-"))
+                textField.setText(displayText.substring(0, length2) + lastExp);
+            else
+                textField.setText(displayText.substring(0, length2) + " -" + lastExp);
+        }
+    }
+    
+    private Integer EvaluateNumber(String value){
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
     
     public static void main (String[] args) {
         Calculator frame = new Calculator();
-        frame.setVisible(true);
     }
 }
