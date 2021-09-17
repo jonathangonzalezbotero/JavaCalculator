@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
+import java.util.*;
 
 /**
  * Assessment 2 PROG5001 - A2
@@ -23,7 +24,7 @@ public class Calculator extends JFrame
         super("My PROG5001 - Calculator (1.0) ");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(400, 400));
-        setLocation(300, 300);
+        //setLocation(300, 300);
         
         BuildComponents();
         
@@ -125,13 +126,15 @@ public class Calculator extends JFrame
                 String displayText = textField.getText();
                 switch(ae.getActionCommand()){
                     case("<<"):
-                        textField.setText(displayText.substring(0, textField.getText().length() -1));
+                        textField.setForeground(Color.BLACK);
+                        DeleteMostRight(displayText);
                         break;
                     case("C"):
+                        textField.setForeground(Color.BLACK);
                         textField.setText("");
                         break;
                     case("="):
-                        EvaluateExpressions();
+                        GetResult(displayText);
                         break;
                     case("+/-"):
                         ChangeSignOfNumber(displayText);
@@ -148,20 +151,146 @@ public class Calculator extends JFrame
       }
     }
     
-    private void EvaluateExpressions(){
-        System.out.println("hola");
+    private void GetResult(String displayText){
+        String value = convert(displayText);
+        System.out.println(value+ "");
+        if(value.equals(""))
+            value = displayText;
+        else
+            value = Double.toString(evaluate(value));
+        
+        textField.setText(value + "");
+    }
+
+    private String convert(String infix) {
+        Stack<String> stack = new Stack();
+        String[] values = infix.split(" ");
+        String postfix = "";
+        for (int i = 1; i < values.length; i++) {
+            if(isOperator(values[i]) >= 0){
+                /*if(!stack.isEmpty() && isOperator(stack.peek()) >= 0){
+                System.out.println(i+"i");
+                    textField.setForeground(Color.RED);
+                    return "";
+                }else{*/
+                    switch(isOperator(values[i])){
+                        case 0:
+                            stack.push(values[i]);
+                            break;
+                        case 1:
+                            stack.push(values[i]);
+                            break;
+                        case 2:
+                            while (!stack.isEmpty() && !stack.peek().equals("(")) {
+                                postfix = postfix + stack.pop() + ",";
+                            }
+                            stack.pop();
+                            break;
+                        default:
+                            while (!stack.isEmpty() && (isOperator(values[i]) <= isOperator(stack.peek()))) {
+                                postfix = postfix + stack.pop() + ",";
+                            }
+                            stack.push(values[i]);
+                            break;
+                    }
+                //}
+            }else{
+                postfix = postfix + values[i] + ",";
+            }
+                System.out.println(stack+"stack");
+                System.out.println(postfix+"postfix");
+                System.out.println(values[i]+"values");
+        }
+        while (!stack.isEmpty()) {
+            postfix = postfix + stack.pop() + ",";
+        }
+        
+        return postfix;
+    }
+    
+    public double evaluate(String postfix) {
+        Stack<Double> stack = new Stack();
+        String[] values = postfix.split(",");
+        double result = 0;
+        for (int i = 0; i < values.length; i++) {
+            switch (isOperator(values[i])) {
+                case 0:
+                    double operand = Double.parseDouble("" + stack.pop());
+                    result = 1;
+                    for(int j=1; j<=operand; j++){
+                        result *= j;
+                    }
+                    stack.push(result);
+                    break;
+                case 3:
+                case 4:
+                    double operand2 = Double.parseDouble("" + stack.pop());
+                    double operand1 = Double.parseDouble("" + stack.pop());
+                    if (values[i].equals("+")) {
+                        result = operand1 + operand2;
+                    } else
+                    if (values[i].equals("-")) {
+                        result = operand1 - operand2;
+                    } else
+                    if (values[i].equals("*")) {
+                        result = operand1 * operand2;
+                    } else
+                    if (values[i].equals("/")) {
+                        result = operand1 / operand2;
+                    }
+                    stack.push(result);
+                    break;
+                case -1:
+                    stack.push(Double.parseDouble("" + values[i]));                
+                    break;
+            }
+        }
+        
+        result = stack.pop();
+        
+        return result;
+    }
+
+    private int isOperator(String c) {
+        switch (c) {
+            case "!":
+                return 0;
+            case "(":
+                return 1;
+            case ")":
+                return 2;
+            case "+":                
+            case "-":
+                return 3;
+            case "*":
+            case "/":
+                return 4;
+        }
+        return -1;
+    }
+    
+    private void DeleteMostRight(String displayText){
+        Integer length = displayText.length();
+            
+        if(displayText.substring(length - 1).equals(" "))
+            displayText = displayText.substring(0, length - 2);
+        else
+            displayText = displayText.substring(0, length - 1);
+        
+        textField.setText(displayText.trim());
     }
     
     private void ChangeSignOfNumber(String displayText){
-        Integer length1 = displayText.length() - 1;
-        Integer length2 = displayText.length() - 2;
-        Integer lastExp = EvaluateNumber(displayText.substring(length1));
-        if(lastExp > 0){
-            String signExp = displayText.substring(length2, length1);
-            if(signExp.equals("-"))
-                textField.setText(displayText.substring(0, length2) + lastExp);
-            else
-                textField.setText(displayText.substring(0, length2) + " -" + lastExp);
+        Integer length = displayText.length();
+        if(length > 0){
+            Integer lastExp = EvaluateNumber(displayText.substring(length - 1));
+            if(lastExp > 0){
+                String signExp = displayText.substring(length - 2, length - 1);
+                if(signExp.equals("-"))
+                    textField.setText(displayText.substring(0, length - 2) + lastExp);
+                else
+                    textField.setText(displayText.substring(0, length - 2) + " -" + lastExp);
+            }
         }
     }
     
