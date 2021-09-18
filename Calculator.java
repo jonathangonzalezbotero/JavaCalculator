@@ -13,8 +13,6 @@ import java.util.*;
 public class Calculator extends JFrame
 {
     JTextField textField;
-    //
-    String expression = "";
 
     /**
      * Constructor of class Calculator
@@ -24,7 +22,6 @@ public class Calculator extends JFrame
         super("My PROG5001 - Calculator (1.0) ");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(400, 400));
-        //setLocation(300, 300);
         
         BuildComponents();
         
@@ -32,6 +29,9 @@ public class Calculator extends JFrame
         setVisible(true);
     }
     
+    /**
+     * Method to create the GUI of the Calculator, using BorderLayout as the main Layout
+     */
     private void BuildComponents(){
         BorderLayout calculatorPanel = new BorderLayout();
         JPanel displayPanel = new JPanel();
@@ -43,11 +43,9 @@ public class Calculator extends JFrame
         GridBagConstraints gbc1 = new GridBagConstraints();
         
         gbc.weighty = 0.1;
-        gbc1.weighty = 0.1;
         gbc.fill = GridBagConstraints.BOTH;
-        gbc1.fill = GridBagConstraints.BOTH;
 
-        textField = new JTextField("");
+        textField = new JTextField();
         textField.setPreferredSize(new Dimension(380, 40));
         textField.setHorizontalAlignment(JTextField.RIGHT);
         textField.setEditable(false);
@@ -75,42 +73,46 @@ public class Calculator extends JFrame
         gbc.gridwidth = 3;
         mainPanel.add(new ButtonCalculator("="), gbc);
 
-        gbc1.gridy = 0;
-        gbc1.gridx = 3;
-        mainPanel.add(new ButtonCalculator("+"), gbc1);
-        gbc1.gridy = 0;
-        gbc1.gridx = 4;
-        mainPanel.add(new ButtonCalculator("<<"), gbc1);
-        gbc1.gridy = 1;
-        gbc1.gridx = 3;
-        mainPanel.add(new ButtonCalculator("-"), gbc1);
-        gbc1.gridy = 1;
-        gbc1.gridx = 4;
-        mainPanel.add(new ButtonCalculator("C"), gbc1);
-        gbc1.gridy = 2;
-        gbc1.gridx = 3;
-        mainPanel.add(new ButtonCalculator("*"), gbc1);
-        gbc1.gridy = 2;
-        gbc1.gridx = 4;
-        mainPanel.add(new ButtonCalculator("("), gbc1);
-        gbc1.gridy = 3;
-        gbc1.gridx = 3;
-        mainPanel.add(new ButtonCalculator("/"), gbc1);
-        gbc1.gridy = 3;
-        gbc1.gridx = 4;
-        mainPanel.add(new ButtonCalculator(")"), gbc1);
-        gbc1.gridy = 4;
-        gbc1.gridx = 3;
-        mainPanel.add(new ButtonCalculator("!"), gbc1);
-        gbc1.gridy = 4;
-        gbc1.gridx = 4;
-        mainPanel.add(new ButtonCalculator("OFF"), gbc1);
+        gbc.gridwidth = 1;
+        gbc.gridy = 0;
+        gbc.gridx = 3;
+        mainPanel.add(new ButtonCalculator("+"), gbc);
+        gbc.gridy = 0;
+        gbc.gridx = 4;
+        mainPanel.add(new ButtonCalculator("<<"), gbc);
+        gbc.gridy = 1;
+        gbc.gridx = 3;
+        mainPanel.add(new ButtonCalculator("-"), gbc);
+        gbc.gridy = 1;
+        gbc.gridx = 4;
+        mainPanel.add(new ButtonCalculator("C"), gbc);
+        gbc.gridy = 2;
+        gbc.gridx = 3;
+        mainPanel.add(new ButtonCalculator("*"), gbc);
+        gbc.gridy = 2;
+        gbc.gridx = 4;
+        mainPanel.add(new ButtonCalculator("("), gbc);
+        gbc.gridy = 3;
+        gbc.gridx = 3;
+        mainPanel.add(new ButtonCalculator("/"), gbc);
+        gbc.gridy = 3;
+        gbc.gridx = 4;
+        mainPanel.add(new ButtonCalculator(")"), gbc);
+        gbc.gridy = 4;
+        gbc.gridx = 3;
+        mainPanel.add(new ButtonCalculator("!"), gbc);
+        gbc.gridy = 4;
+        gbc.gridx = 4;
+        mainPanel.add(new ButtonCalculator("OFF"), gbc);
         
         setLayout(calculatorPanel);
         add(displayPanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
     }
     
+    /**
+     * Customize class for the buttons of the GUI
+     */
     public class ButtonCalculator extends JButton {
       public ButtonCalculator(String actionCommand) {
         super(actionCommand);
@@ -125,13 +127,12 @@ public class Calculator extends JFrame
             public void actionPerformed(ActionEvent ae) {
                 String displayText = textField.getText();
                 switch(ae.getActionCommand()){
+                    case("OFF"):
+                        System.exit(0);
+                        break;
                     case("<<"):
                         textField.setForeground(Color.BLACK);
                         DeleteMostRight(displayText);
-                        break;
-                    case("C"):
-                        textField.setForeground(Color.BLACK);
-                        textField.setText("");
                         break;
                     case("="):
                         GetResult(displayText);
@@ -139,8 +140,9 @@ public class Calculator extends JFrame
                     case("+/-"):
                         ChangeSignOfNumber(displayText);
                         break;
-                    case("OFF"):
-                        System.exit(0);
+                    case("C"):
+                        textField.setForeground(Color.BLACK);
+                        textField.setText("");
                         break;
                     default:
                         textField.setText(displayText + " " + ae.getActionCommand());
@@ -151,29 +153,38 @@ public class Calculator extends JFrame
       }
     }
     
+    /**
+     * Get the result after evaluate the expression
+     * @param displayText the value of the display to be evaluted
+     */
     private void GetResult(String displayText){
-        String value = convert(displayText);
-        System.out.println(value+ "");
+        String value = Convert(displayText);
+        System.out.println(value);
         if(value.equals(""))
             value = displayText;
         else
-            value = Double.toString(evaluate(value));
+            value = Double.toString(Evaluate(value));
         
         textField.setText(value + "");
     }
 
-    private String convert(String infix) {
+    /**
+     * Conversion from infix to postfix
+     * @param infix - Get the expression to evaluate
+     * @return the value in postfix
+     */
+    private String Convert(String infix) {
         Stack<String> stack = new Stack();
-        String[] values = infix.split(" ");
+        System.out.println(stack+"stack");
+        String[] values = infix.trim().split(" ");
         String postfix = "";
-        for (int i = 1; i < values.length; i++) {
-            if(isOperator(values[i]) >= 0){
-                /*if(!stack.isEmpty() && isOperator(stack.peek()) >= 0){
-                System.out.println(i+"i");
-                    textField.setForeground(Color.RED);
+        for (int i = 0; i < values.length; i++) {
+            if(IsOperator(values[i]) >= 0){
+                if(!stack.isEmpty() && IsOperator(values[i]) > 2 && IsOperator(values[i-1]) > 2){
+                    HighLightError();
                     return "";
-                }else{*/
-                    switch(isOperator(values[i])){
+                }else{
+                    switch(IsOperator(values[i])){
                         case 0:
                             stack.push(values[i]);
                             break;
@@ -187,19 +198,16 @@ public class Calculator extends JFrame
                             stack.pop();
                             break;
                         default:
-                            while (!stack.isEmpty() && (isOperator(values[i]) <= isOperator(stack.peek()))) {
+                            while (!stack.isEmpty() && (IsOperator(values[i]) <= IsOperator(stack.peek()))) {
                                 postfix = postfix + stack.pop() + ",";
                             }
                             stack.push(values[i]);
                             break;
                     }
-                //}
+                }
             }else{
                 postfix = postfix + values[i] + ",";
             }
-                System.out.println(stack+"stack");
-                System.out.println(postfix+"postfix");
-                System.out.println(values[i]+"values");
         }
         while (!stack.isEmpty()) {
             postfix = postfix + stack.pop() + ",";
@@ -208,12 +216,17 @@ public class Calculator extends JFrame
         return postfix;
     }
     
-    public double evaluate(String postfix) {
+    /**
+     * Evaluate the postfox expressions in order to get the result
+     * @param postfix - expression to calculate
+     * @return Result of the operation
+     */
+    public double Evaluate(String postfix) {
         Stack<Double> stack = new Stack();
         String[] values = postfix.split(",");
         double result = 0;
         for (int i = 0; i < values.length; i++) {
-            switch (isOperator(values[i])) {
+            switch (IsOperator(values[i])) {
                 case 0:
                     double operand = Double.parseDouble("" + stack.pop());
                     result = 1;
@@ -224,21 +237,26 @@ public class Calculator extends JFrame
                     break;
                 case 3:
                 case 4:
-                    double operand2 = Double.parseDouble("" + stack.pop());
-                    double operand1 = Double.parseDouble("" + stack.pop());
-                    if (values[i].equals("+")) {
-                        result = operand1 + operand2;
-                    } else
-                    if (values[i].equals("-")) {
-                        result = operand1 - operand2;
-                    } else
-                    if (values[i].equals("*")) {
-                        result = operand1 * operand2;
-                    } else
-                    if (values[i].equals("/")) {
-                        result = operand1 / operand2;
+                    if(stack.size() > 1){
+                        double operand2 = Double.parseDouble("" + stack.pop());
+                        double operand1 = Double.parseDouble("" + stack.pop());
+                        if (values[i].equals("+")) {
+                            result = operand1 + operand2;
+                        } else
+                        if (values[i].equals("-")) {
+                            result = operand1 - operand2;
+                        } else
+                        if (values[i].equals("*")) {
+                            result = operand1 * operand2;
+                        } else
+                        if (values[i].equals("/")) {
+                            result = operand1 / operand2;
+                        }
+                        stack.push(result);
+                    }else{
+                        HighLightError();
+                        break;
                     }
-                    stack.push(result);
                     break;
                 case -1:
                     stack.push(Double.parseDouble("" + values[i]));                
@@ -251,7 +269,12 @@ public class Calculator extends JFrame
         return result;
     }
 
-    private int isOperator(String c) {
+    /**
+     * According to the character check if either is an operator or not
+     * @param c -Character to evaluate
+     * @return The value according to the operator
+     */
+    private int IsOperator(String c) {
         switch (c) {
             case "!":
                 return 0;
@@ -269,6 +292,17 @@ public class Calculator extends JFrame
         return -1;
     }
     
+    /**
+     * HighLight the display to let the user know something is wrong
+     */
+    private void HighLightError(){
+        textField.setForeground(Color.RED);
+    }
+    
+    /**
+     * Delete the first right character of a expression
+     * @param displayText - expression to delete the character
+     */
     private void DeleteMostRight(String displayText){
         Integer length = displayText.length();
             
@@ -280,6 +314,10 @@ public class Calculator extends JFrame
         textField.setText(displayText.trim());
     }
     
+    /**
+     * Change the sign of a number
+     * @param displayText - value to change the sign
+     */
     private void ChangeSignOfNumber(String displayText){
         Integer length = displayText.length();
         if(length > 0){
@@ -294,6 +332,11 @@ public class Calculator extends JFrame
         }
     }
     
+    /**
+     * Check if the value given is a number or not
+     * @param value - number to check
+     * @return The value as a integer
+     */
     private Integer EvaluateNumber(String value){
         try {
             return Integer.parseInt(value);
@@ -302,6 +345,9 @@ public class Calculator extends JFrame
         }
     }
     
+    /**
+     * Main method to run the program
+     */
     public static void main (String[] args) {
         Calculator frame = new Calculator();
     }
