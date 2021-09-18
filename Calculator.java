@@ -159,7 +159,6 @@ public class Calculator extends JFrame
      */
     private void GetResult(String displayText){
         String value = Convert(displayText);
-        System.out.println(value);
         if(value.equals(""))
             value = displayText;
         else
@@ -175,7 +174,6 @@ public class Calculator extends JFrame
      */
     private String Convert(String infix) {
         Stack<String> stack = new Stack();
-        System.out.println(stack+"stack");
         String[] values = infix.trim().split(" ");
         String postfix = "";
         for (int i = 0; i < values.length; i++) {
@@ -264,7 +262,8 @@ public class Calculator extends JFrame
             }
         }
         
-        result = stack.pop();
+        if(!stack.isEmpty())
+            result = stack.pop();
         
         return result;
     }
